@@ -7,6 +7,7 @@ import os
 import time
 import parsedatetime.parsedatetime as pdt
 import parsedatetime.parsedatetime_consts as pdc
+import datetime
 
 DATADIR = os.path.expanduser("~/.usedtoit/")
 DATAEXT = ".yml"
@@ -22,7 +23,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Form new habits by tracking and reinforcing them.")
     parser.add_argument("calendar_name", action="store")
     parser.add_argument("value", action="store", type=int)
-    parser.add_argument("--date", action="store", dest="value_date", default=time.time())
+    parser.add_argument("--date", action="store", dest="value_date")
     args = parser.parse_args()
 
     """
@@ -42,12 +43,17 @@ if __name__ == "__main__":
     """
     The date is parsed intelligently w/ `parsedatetime` so you can type in
     humanized dates like "2 days ago".  It is stored in a human-readable and
-    editable format as opposted to a unix timestamp, in case you'd want to edit
-    the file yourself.
+    editable format as opposed to a unix timestamp, in case you'd want to edit
+    the file yourself. The date is always converted to UTC.
     """
-    date_parser = pdt.Calendar(pdc.Constants())
-    parsed_date = time.gmtime(time.mktime(date_parser.parse(args.value_date)))
-    string_date = time.strftime("%Y-%m-%d %H:%M:%S", parsed_date[0])
+    use_date = None
+    if not args.value_date:
+        use_date = datetime.datetime.utcnow().timetuple()
+    else:
+        date_parser = pdt.Calendar(pdc.Constants())
+        use_date = time.gmtime(time.mktime(date_parser.parse(args.value_date)[0]))
+
+    string_date = time.strftime("%Y-%m-%d %H:%M:%S", use_date)
 
     with open(calendars[args.calendar_name], "a+") as f:
         f.write("%s: %s %s" % (string_date, args.value, os.linesep))
