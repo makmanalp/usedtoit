@@ -8,7 +8,7 @@ import time
 import parsedatetime.parsedatetime as pdt
 import parsedatetime.parsedatetime_consts as pdc
 
-DATADIR = "~/.usedtoit/"
+DATADIR = os.path.expanduser("~/.usedtoit/")
 DATAEXT = ".yml"
 
 if __name__ == "__main__":
